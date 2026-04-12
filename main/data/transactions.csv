@@ -1,0 +1,11 @@
+date,type,description,amount,gst_rate,hsn_sac,party_name,party_gstin
+2024-03-01,income,Software Services,50000,18,998314,Acme Corp,27AABCU9603R1ZX
+2024-03-03,income,Consulting Fee,30000,18,998313,Beta Ltd,29AABCT1332L1ZK
+2024-03-05,expense,Office Rent,15000,18,997212,Landlord Prasad,
+2024-03-08,expense,Laptop Purchase,80000,18,847130,TechZone Store,27AAACT2727Q1ZP
+2024-03-10,income,Product Sale,20000,12,841810,Gamma Traders,24AAACP2850M1ZC
+2024-03-12,expense,Internet Bill,2000,18,998422,Airtel Business,29AABCA0525L1Z4
+2024-03-15,income,Annual Maintenance,10000,18,998314,Delta Pvt Ltd,06AABCD1232E1ZF
+2024-03-18,expense,Stationery,1500,12,482190,Local Supplier,
+2024-03-20,income,Training Services,25000,18,999293,Epsilon Edu,09AABCE4851N1ZV
+2024-03-25,expense,Travel,5000,5,996312,OYO Rooms,06AAGCO2017A1ZT
