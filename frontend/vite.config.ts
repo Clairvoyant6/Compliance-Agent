@@ -35,11 +35,15 @@ export default defineConfig({
   assetsInclude: ['**/*.svg', '**/*.csv'],
 
   server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-    },
+    host: true,
+    port: 5173,
+    // Backend proxy disabled for v0 preview (no backend running).
+    // Re-enable locally when running the Python backend on port 8000.
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:8000',
+    //     changeOrigin: true,
+    //   },
+    // },
   },
 })
