@@ -2,6 +2,7 @@
   "name": "compliance-agent-unified",
   "version": "1.0.0",
   "description": "Unified repository for Compliance Agent Backend and Frontend",
+  "private": true,
   "scripts": {
     "install:frontend": "cd frontend && pnpm install",
     "install:backend": "cd backend && python3 -m pip install --user --break-system-packages -r requirements.txt || python3 -m pip install --user -r requirements.txt",
@@ -12,9 +13,13 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "dependencies": {
-    "@tailwindcss/vite": "^4.2.2",
-    "@vitejs/plugin-react": "^6.0.1",
-    "vite": "^8.0.8"
+  "pnpm": {
+    "overrides": {
+      "vite": "6.3.5"
+    },
+    "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
+      "esbuild"
+    ]
   }
 }
