@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { api, BusinessContext, LLMConfig } from '../services/api';
 
 interface AppState {
@@ -9,8 +9,11 @@ interface AppState {
   llmConfig: LLMConfig;
   setLlmConfig: (cfg: LLMConfig) => void;
   backendOnline: boolean;
+  mockMode: boolean;
   lastSync: string;
-  refreshBackendStatus: () => void;
+  userEmail: string;
+  setUserEmail: (email: string) => void;
+  refreshBackendStatus: () => Promise<void>;
 }
 
 const defaultBusinessContext: BusinessContext = {
@@ -30,53 +33,86 @@ const AppContext = createContext<AppState>({
   llmConfig: { provider: 'mock' },
   setLlmConfig: () => {},
   backendOnline: false,
+  mockMode: true,
   lastSync: '',
-  refreshBackendStatus: () => {},
+  userEmail: 'sarah.mitchell@precisionengg.com',
+  setUserEmail: () => {},
+  refreshBackendStatus: async () => {},
 });
+
+const USER_EMAIL_KEY = 'complianceiq:user-email';
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [activeDatasetId, setActiveDatasetId] = useState('sample');
   const [businessContext, setBusinessContext] = useState<BusinessContext>(defaultBusinessContext);
   const [llmConfig, setLlmConfig] = useState<LLMConfig>({ provider: 'mock' });
   const [backendOnline, setBackendOnline] = useState(false);
+  const [mockMode, setMockMode] = useState(true);
   const [lastSync, setLastSync] = useState('');
+  const [userEmail, setUserEmailState] = useState(() => {
+    if (typeof window === 'undefined') return 'sarah.mitchell@precisionengg.com';
+    return localStorage.getItem(USER_EMAIL_KEY) || 'sarah.mitchell@precisionengg.com';
+  });
 
-  const refreshBackendStatus = async () => {
+  const setUserEmail = useCallback((email: string) => {
+    setUserEmailState(email);
+    try {
+      localStorage.setItem(USER_EMAIL_KEY, email);
+    } catch {
+      /* ignore storage errors */
+    }
+  }, []);
+
+  const refreshBackendStatus = useCallback(async () => {
     try {
       const health = await api.checkHealth();
-      setBackendOnline(health.status === 'ok');
+      const online = health.status === 'ok';
+      setBackendOnline(online);
+      setMockMode(!online);
       setLastSync(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
 
-      // Fetch business context
       try {
         const ctx = await api.getBusinessContext();
         setBusinessContext(ctx);
-      } catch { /* use defaults */ }
+      } catch {
+        /* keep defaults */
+      }
 
-      // Fetch LLM config
       try {
         const cfg = await api.getLLMConfig();
         setLlmConfig(cfg);
-      } catch { /* use defaults */ }
+      } catch {
+        /* keep defaults */
+      }
     } catch {
       setBackendOnline(false);
+      setMockMode(true);
     }
-  };
+  }, []);
 
   useEffect(() => {
     refreshBackendStatus();
-    const interval = setInterval(refreshBackendStatus, 30000); // Check every 30s
+    const interval = setInterval(refreshBackendStatus, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshBackendStatus]);
 
   return (
-    <AppContext.Provider value={{
-      activeDatasetId, setActiveDatasetId,
-      businessContext, setBusinessContext,
-      llmConfig, setLlmConfig,
-      backendOnline, lastSync,
-      refreshBackendStatus,
-    }}>
+    <AppContext.Provider
+      value={{
+        activeDatasetId,
+        setActiveDatasetId,
+        businessContext,
+        setBusinessContext,
+        llmConfig,
+        setLlmConfig,
+        backendOnline,
+        mockMode,
+        lastSync,
+        userEmail,
+        setUserEmail,
+        refreshBackendStatus,
+      }}
+    >
       {children}
     </AppContext.Provider>
   );

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import {
-  FileText, Download, RefreshCw, BarChart2, Shield, Receipt,
-  Activity, Users, Package, Clock, CheckCircle2, AlertCircle,
-  Plus, Filter, Search
+  FileText, Download, RefreshCw, Receipt,
+  Activity, Users, Clock, CheckCircle2, AlertCircle,
+  Plus, Search, FileDown, FileSpreadsheet,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { api } from '../services/api';
 // Fallback mock
-import { reports as mockReports, Report } from '../data/mockData';
+import { reports as mockReports } from '../data/mockData';
 
 const REPORT_TYPES = [
   {
@@ -145,13 +145,39 @@ export default function Reports() {
           <h1 className="font-extrabold tracking-tight" style={{ color: 'var(--iq-text)', fontSize: '24px', margin: 0 }}>Compliance Reports</h1>
           <p className="text-sm mt-1" style={{ color: 'var(--iq-text-muted)' }}>Generate, download, and share comprehensive compliance reports synced with active datasets.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
+            onClick={async () => {
+              try { await api.exportReportPDF(activeDatasetId); }
+              catch (e) { alert((e as Error).message); }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+            style={{ background: 'var(--iq-accent)', color: '#fff' }}
+          >
+            <FileDown className="w-4 h-4" />
+            Export PDF
+          </button>
+          <button
+            onClick={async () => {
+              try { await api.exportReportCSV(activeDatasetId, 'report'); }
+              catch (e) { alert((e as Error).message); }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity"
+            style={{ background: 'var(--iq-surface-2)', color: 'var(--iq-text)', border: '1px solid var(--iq-border)' }}
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export CSV
+          </button>
+          <button
+            onClick={async () => {
+              try { await api.exportReportCSV(activeDatasetId, 'transactions'); }
+              catch (e) { alert((e as Error).message); }
+            }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity"
             style={{ background: 'var(--iq-surface-2)', color: 'var(--iq-text)', border: '1px solid var(--iq-border)' }}
           >
             <Download className="w-4 h-4" />
-            Download All Available
+            Transactions CSV
           </button>
         </div>
       </div>
