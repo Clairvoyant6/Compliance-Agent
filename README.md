@@ -4,80 +4,153 @@ An integrated, enterprise-grade AI Compliance Agent and real-time frontend dashb
 
 ## Overview
 
-Compliance Agent is designed to streamline corporate tax compliance by combining a powerful backend rules engine and Large Language Model (LLM) intelligence with an intuitive, dynamic frontend. 
+Compliance Agent streamlines corporate tax compliance by combining a powerful backend rules engine and multi-LLM intelligence with an intuitive, dynamic frontend.
 
 **Key Features:**
-- **Dashboard & Health Monitor:** Real-time diagnostics of compliance state with risk scoring and visual alerts.
-- **Transactions Management:** Instantly upload CSV datasets. The backend automatically parses transactions, checks for anomalies, and readies them for reporting.
-- **GST Centre:** Accurately calculates GST tax liability across various rate buckets, ITC (Input Tax Credit) utilization, and determines net payable amounts.
-- **Compliance Calendar:** Automatically generates and tracks compliance deadlines (filings, payments, audits) based on your transactions and business context.
-- **AI Agent Chat:** An interactive conversational assistant powered by large language models (Anthropic Claude, Google Gemini, or OpenAI GPT-4) to answer compliance questions and run "Deep Scans" on your datasets.
-- **Configurable Settings:** Fully customizable business context (turnover, registration details) and AI parameters (API keys, model selection), completely synced to the backend in real-time.
+- **Dashboard & Health Monitor** — Real-time diagnostics of compliance state with risk scoring, visual alerts, and period-over-period comparison.
+- **Transactions Management** — Upload CSV datasets. The backend automatically parses transactions, checks for anomalies, and readies them for reporting.
+- **GST Centre** — Accurately calculates GST liability across rate buckets, ITC utilization, and net payable amounts.
+- **Compliance Calendar** — Automatically generates and tracks filings, payments, and audit deadlines.
+- **AI Agent Chat** — Interactive conversational assistant powered by a **multi-LLM router** (Groq, Google Gemini, Anthropic Claude, OpenAI, or deterministic mock fallback).
+- **Reports with PDF / CSV Export** — Generate executive summaries, transaction exports, and full compliance PDF reports.
+- **Audit Trail** — Every business-context change, LLM config change, CSV upload, and agent action is immutably logged.
+- **Notifications** — Browser push, email (Resend), and an automated daily-digest scheduler (APScheduler).
+- **Persistent Storage** — SQLite by default; drop-in Postgres (Supabase / Neon) by changing a single env var.
 
 ## Tech Stack
 
 ### Backend
-- **Framework:** FastAPI / Python
-- **Functionality:** Multi-dataset orchestration (`DatasetStore`), data parsing, robust GST computation, AI Model invocation (`pipeline.py`).
+- **Framework:** FastAPI + SQLAlchemy
+- **Persistence:** SQLite (default) or any Postgres via `DATABASE_URL` (Supabase, Neon, RDS)
+- **LLM Router:** Groq / Gemini / Claude / OpenAI / Mock, with TTL cache and automatic fallback
+- **Scheduler:** APScheduler (daily digest + proactive alerts)
+- **Email:** Resend (optional)
 - **Default Port:** `8000`
 
 ### Frontend
-- **Framework:** React / Vite / TypeScript
-- **Styling:** Vanilla CSS design system, fully responsive with interactive micro-animations and data visualizations (`recharts`).
-- **Icons:** `lucide-react`
-- **Default Port:** `5173`
+- **Framework:** React 18 + Vite + TypeScript + React Router v7
+- **Styling:** Tailwind v4 design tokens + custom CSS variables
+- **Charts:** Recharts, **Icons:** lucide-react
+- **Default Port:** `3000` (proxies `/api` to backend on `:8000`)
 
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v16+)
-- Python (3.8+)
-- (Optional) An API key for your preferred LLM provider (Anthropic, Google, or OpenAI). The app defaults to "mock" mode for safe offline evaluation without an API key.
+- Node.js 18+ and pnpm (`npm i -g pnpm`)
+- Python 3.10+
+- _(Optional)_ API key for Groq (fastest, free tier) or Google Gemini
 
 ### Installation
 
-Install dependencies for both the frontend and backend in one command from the project root:
-
 ```bash
-# This will install Node packages and then trigger the Python requirements installation
-npm install
-npm run install:backend
+# Frontend deps
+pnpm install
+
+# Backend deps
+cd backend
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env             # then fill in keys (optional)
+cd ..
 ```
 
-### Running the Application
+### Running locally
 
-You can start the fully integrated environment using the cross-platform concurrent runner:
+**Option A — Two terminals (recommended):**
 
 ```bash
-npm run dev
+# Terminal 1
+cd backend && uvicorn server:app --reload --port 8000
+
+# Terminal 2
+pnpm dev                         # starts frontend on :3000
 ```
 
-Alternatively, you can use the provided startup scripts from the root directory:
-- **Windows:** Run `start.bat`
-- **Mac/Linux:** Run `start.sh`
+**Option B — Concurrently:**
 
-Both services will spin up simultaneously. You can then access:
-- **Frontend App:** [http://localhost:5173](http://localhost:5173)
-- **Backend API Docs (Swagger):** [http://localhost:8000/docs](http://localhost:8000/docs)
+```bash
+pnpm dev:all                     # runs backend + frontend together
+```
+
+Then open:
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Running in v0 Preview
+
+The v0 preview only runs the frontend. When the backend is unreachable, the API layer automatically falls back to mock data so every page renders correctly for demos. The banner in Settings will show "Backend offline — using mock data."
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DATABASE_URL` | `sqlite:///./compliance.db` | Swap to `postgresql+psycopg://...` for Supabase/Neon |
+| `LLM_PROVIDER` | `mock` | One of: `mock`, `groq`, `gemini`, `anthropic`, `openai` |
+| `LLM_MODEL` | provider default | e.g. `llama-3.3-70b-versatile`, `gemini-1.5-flash` |
+| `GROQ_API_KEY` | — | From [console.groq.com](https://console.groq.com) |
+| `GEMINI_API_KEY` | — | From [aistudio.google.com](https://aistudio.google.com) |
+| `ANTHROPIC_API_KEY` | — | From [console.anthropic.com](https://console.anthropic.com) |
+| `OPENAI_API_KEY` | — | From [platform.openai.com](https://platform.openai.com) |
+| `RESEND_API_KEY` | — | Email notifications ([resend.com](https://resend.com)) |
+| `NOTIFY_FROM_EMAIL` | `onboarding@resend.dev` | Verified sender |
+| `NOTIFY_TO_EMAIL` | — | Default digest recipient |
+| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:5173` | Comma-separated |
+| `DAILY_DIGEST_HOUR` | `9` | 24h local time |
+| `PROMPT_CACHE_TTL` | `600` | Seconds |
+
+### Frontend (`frontend/.env`)
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `VITE_API_BASE` | `/api` (proxied) | Override for production builds hitting a remote backend |
+
+## Deployment
+
+### Frontend → Vercel
+1. Push to GitHub, import into Vercel.
+2. Root directory: `frontend`. Build command: `pnpm build`. Output: `dist`.
+3. Set `VITE_API_BASE=https://your-backend-host.com/api`.
+
+### Backend → Render / Railway / Fly
+1. New Web Service → Docker or Python runtime.
+2. Build: `pip install -r requirements.txt`
+3. Start: `uvicorn server:app --host 0.0.0.0 --port $PORT`
+4. Set env vars from the table above. Mount a persistent disk if using SQLite, or point `DATABASE_URL` at Supabase/Neon.
+5. Set `CORS_ORIGINS` to include your Vercel frontend URL.
 
 ## Project Structure
 
 ```
 Compliance Agent/
-├── backend/                  # FastAPI Application
-│   ├── agent/                # LLM integration & prompts
-│   ├── modules/              # Compliance logic, categorization, and parsing
-│   ├── server.py             # Main FastAPI entry point
-│   └── requirements.txt      # Python dependencies
-├── frontend/                 # Vite/React Application
-│   ├── src/
-│   │   ├── app/              # Main UI Components & Pages
-│   │   ├── styles/           # Global CSS variables & layout utilities
-│   │   └── context/          # AppContext for global state & API sync
-│   └── vite.config.ts        # Vite configuration (Proxy to Backend)
-├── package.json              # Global entry point & concurrently scripts
-└── start.bat / start.sh      # Helper startup scripts
+├── backend/
+│   ├── agent/                # LLM router, prompts, pipeline
+│   │   ├── llm_wrapper.py    # Groq / Gemini / Claude / OpenAI / Mock
+│   │   └── ...
+│   ├── modules/              # GST, calendar, categorization, parsing
+│   ├── db.py                 # SQLAlchemy engine + session factory
+│   ├── models.py             # ORM models (User, Dataset, Audit, ...)
+│   ├── notifications.py      # Resend email + in-app notifications
+│   ├── scheduler.py          # APScheduler daily digest
+│   ├── exports.py            # PDF + CSV generators
+│   ├── server.py             # FastAPI app
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── src/app/
+│   │   ├── pages/            # Dashboard, Reports, AuditTrail, Settings, ...
+│   │   ├── components/       # Layout, shared UI
+│   │   ├── context/          # AppContext with mock fallback
+│   │   └── services/api.ts   # HTTP layer (typed, graceful offline)
+│   ├── vite.config.ts
+│   └── .env.example
+├── package.json              # Workspace root
+└── README.md
 ```
 
 ## Contributing
-When making changes, ensure that new UI components properly utilize the `frontend/src/app/services/api.ts` HTTP Service Layer to communicate with the FastAPI backend, and that graceful failure (mock data fallback) is correctly configured for offline demos.
+- New UI must go through `frontend/src/app/services/api.ts` so the mock fallback keeps working.
+- New DB fields → add to `backend/models.py`, bump a migration in `scripts/`.
+- New LLM providers → add a case to `backend/agent/llm_wrapper.py::LLMRouter`.
