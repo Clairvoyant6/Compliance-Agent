@@ -8,6 +8,7 @@ import AIAgent from './pages/AIAgent';
 import HealthMonitor from './pages/HealthMonitor';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import AuditTrail from './pages/AuditTrail';
 import NotFound from './pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -22,6 +23,7 @@ export const router = createBrowserRouter([
       { path: 'ai-agent', Component: AIAgent },
       { path: 'health', Component: HealthMonitor },
       { path: 'reports', Component: Reports },
+      { path: 'audit', Component: AuditTrail },
       { path: 'settings', Component: Settings },
       { path: '*', Component: NotFound },
     ],

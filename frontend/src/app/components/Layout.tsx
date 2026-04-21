@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router';
 import {
   LayoutDashboard, ArrowLeftRight, Receipt, CalendarDays, Bot,
   Activity, BarChart2, Settings, Bell, Search, Sun, Moon,
-  Menu, X, Shield, ChevronRight, User, LogOut, TrendingUp
+  Menu, X, Shield, ChevronRight, User, LogOut, TrendingUp, ShieldCheck,
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 
@@ -15,6 +15,7 @@ const navItems = [
   { path: '/ai-agent', label: 'AI Agent', icon: Bot },
   { path: '/health', label: 'Health Monitor', icon: Activity },
   { path: '/reports', label: 'Reports', icon: BarChart2 },
+  { path: '/audit', label: 'Audit Trail', icon: ShieldCheck },
 ];
 
 const pageLabels: Record<string, string> = {
@@ -25,6 +26,7 @@ const pageLabels: Record<string, string> = {
   '/ai-agent': 'AI Compliance Agent',
   '/health': 'Health Monitor',
   '/reports': 'Reports',
+  '/audit': 'Audit Trail',
   '/settings': 'Settings & Profile',
 };
 
