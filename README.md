@@ -1,4 +1,4 @@
-# Compliance Agent & ComplianceIQ
+# Compliance Agent 
 
 An integrated, enterprise-grade AI Compliance Agent and real-time frontend dashboard. This repository merges the Python-based AI Backend (FastAPI) and the React-based ComplianceIQ Frontend (Vite) into a single, cohesive, monolithic application architecture.
 
