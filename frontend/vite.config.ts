@@ -37,11 +37,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      },
-    },
+    // Note: API requests go directly to VITE_API_BASE_URL set in env vars.
+    // No dev proxy is configured — the api.ts service uses the env var or falls back to mock data.
   },
 })

@@ -1,0 +1,49 @@
+# Backend (deployed separately to Render)
+backend/
+
+# Scripts and migration files
+scripts/
+
+# Documentation (not needed in production deploy)
+*.md
+!frontend/README.md
+
+# Python artifacts
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Local data/databases
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Local env files (use Vercel dashboard env vars)
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# CI/CD config (not needed at runtime)
+.github/
+render.yaml
+
+# Test artifacts
+coverage/
+.nyc_output/
