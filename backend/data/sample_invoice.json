@@ -1,0 +1,38 @@
+{
+  "invoice_id": "INV-2024-031",
+  "invoice_date": "2024-03-15",
+  "due_date": "2024-04-14",
+  "seller": {
+    "name": "MyBusiness Solutions Pvt Ltd",
+    "gstin": "29AABCM1234F1ZR",
+    "address": "Bangalore, Karnataka"
+  },
+  "buyer": {
+    "name": "Delta Pvt Ltd",
+    "gstin": "06AABCD1232E1ZF",
+    "address": "Gurugram, Haryana"
+  },
+  "line_items": [
+    {
+      "description": "Annual Maintenance Contract",
+      "hsn_sac": "998314",
+      "quantity": 1,
+      "unit_price": 10000,
+      "gst_rate": 18,
+      "taxable_value": 10000,
+      "cgst": 900,
+      "sgst": 900,
+      "igst": 0,
+      "total": 11800
+    }
+  ],
+  "totals": {
+    "subtotal": 10000,
+    "total_cgst": 900,
+    "total_sgst": 900,
+    "total_igst": 0,
+    "grand_total": 11800
+  },
+  "place_of_supply": "Karnataka",
+  "is_interstate": false
+}
